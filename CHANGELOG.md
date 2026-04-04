@@ -1,5 +1,8 @@
 # BazLootNotifier Changelog
 
+## 006
+- Updated addon icon to sack/bag icon
+
 ## 005
 - Migrated to BazCore framework
 - Added profile support (create, switch, copy, rename, delete profiles)
