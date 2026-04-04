@@ -203,8 +203,17 @@ end
 function addon:ApplyAnchorPosition()
     if not self.Anchor then return end
     self.Anchor:ClearAllPoints()
-    local pos = self:GetSetting("position") or { x = 0, y = 150 }
-    self.Anchor:SetPoint("CENTER", UIParent, "CENTER", pos.x, pos.y)
+    local pos = self:GetSetting("position")
+    if pos and pos.x and pos.y then
+        -- Position saved by EditMode as screen-pixel offset from UIParent center
+        local ux, uy = UIParent:GetCenter()
+        local ues = UIParent:GetEffectiveScale()
+        local es = self.Anchor:GetEffectiveScale()
+        self.Anchor:SetPoint("CENTER", UIParent, "BOTTOMLEFT", (pos.x + ux * ues) / es, (pos.y + uy * ues) / es)
+    else
+        -- Default position
+        self.Anchor:SetPoint("CENTER", UIParent, "CENTER", 0, 150)
+    end
 end
 
 function addon:ApplyAnchorScale()
@@ -234,7 +243,7 @@ function addon:ApplySettings()
 end
 
 function addon:ResetPosition()
-    self:SetSetting("position", { x = 0, y = 150 })
+    self:SetSetting("position", nil)
     self:ApplyAnchorPosition()
 end
 
