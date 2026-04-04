@@ -1,5 +1,13 @@
 # BazLootNotifier Changelog
 
+## 007
+- Anchor frame now uses BazCore Edit Mode framework
+- Full Edit Mode integration: cyan/yellow overlays, grid snapping, settings popup
+- All settings accessible from the Edit Mode popup (scale, timers, filters, etc.)
+- Center-preserving scale (no more sliding when resizing)
+- Removed manual lock/unlock — use Edit Mode to reposition
+- Removed lock/unlock slash commands
+
 ## 006
 - Updated addon icon to sack/bag icon
 

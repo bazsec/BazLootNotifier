@@ -13,7 +13,6 @@ addon = BazCore:RegisterAddon(ADDON_NAME, {
         scale       = 1.0,
         displayTime = 1.5,
         fadeTime    = 0.6,
-        locked      = true,
         hideDefaultLoot = false,
         showItems   = true,
         showCurrency = true,
@@ -30,20 +29,6 @@ addon = BazCore:RegisterAddon(ADDON_NAME, {
 
     slash = { "/bln", "/bazlootnotifier" },
     commands = {
-        lock = {
-            desc = "Lock the anchor frame",
-            handler = function()
-                addon:SetLockState(true)
-                addon:Print("Frame locked.")
-            end,
-        },
-        unlock = {
-            desc = "Unlock the anchor frame (drag to move)",
-            handler = function()
-                addon:SetLockState(false)
-                addon:Print("Frame unlocked. Drag to move.")
-            end,
-        },
         test = {
             desc = "Show a test popup",
             handler = function()
@@ -131,41 +116,87 @@ function addon:CreateAnchorFrame()
     if self.Anchor then return self.Anchor end
 
     local S = self.STYLE
-    local f = CreateFrame("Frame", "BLN_Anchor", UIParent, "BackdropTemplate")
+    local f = CreateFrame("Frame", "BLN_Anchor", UIParent)
     f:SetSize(S.ICON_SIZE + S.PADDING * 2 + S.MAX_TEXT_W, S.ICON_SIZE + S.PADDING * 2)
     f:SetClampedToScreen(true)
-    f:SetMovable(true)
-    f:SetUserPlaced(false)
-    f:EnableMouse(true)
-    f:RegisterForDrag("LeftButton")
-
-    local bg = f:CreateTexture(nil, "BACKGROUND")
-    bg:SetAllPoints()
-    bg:SetColorTexture(0.02, 0.02, 0.02, 1.0)
-    f._bg = bg
-
-    local label = f:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
-    label:SetPoint("CENTER")
-    label:SetText("BazLootNotifier Anchor")
-    f.Label = label
-
-    f:SetScript("OnDragStart", function(frame)
-        if not self:GetSetting("locked") then frame:StartMoving() end
-    end)
-
-    f:SetScript("OnDragStop", function(frame)
-        frame:StopMovingOrSizing()
-        local fx, fy = frame:GetCenter()
-        if not fx or not fy then return end
-        local fs, us = frame:GetEffectiveScale(), UIParent:GetEffectiveScale()
-        local ux, uy = UIParent:GetCenter()
-        local dx = math.floor(fx - (ux * us / fs) + 0.5)
-        local dy = math.floor(fy - (uy * us / fs) + 0.5)
-        self:SetSetting("position", { x = dx, y = dy })
-        self:ApplyAnchorPosition()
-    end)
 
     self.Anchor = f
+    self:ApplyAnchorPosition()
+    self:ApplyAnchorScale()
+
+    BazCore:RegisterEditModeFrame(f, {
+        label = "BazLootNotifier",
+        addonName = ADDON_NAME,
+        positionKey = "position",
+        defaultPosition = { x = 0, y = 150 },
+
+        settings = {
+            { type = "slider", key = "scale", label = "Popup Scale", section = "Appearance",
+              min = 50, max = 250, step = 5,
+              format = function(v) return math.floor(v + 0.5) .. "%" end,
+              get = function() return (addon:GetSetting("scale") or 1.0) * 100 end,
+              set = function(v)
+                  addon:SetSetting("scale", v / 100)
+                  addon:ApplyAnchorScale()
+              end },
+            { type = "slider", key = "displayTime", label = "Display Time", section = "Appearance",
+              min = 3, max = 50, step = 1,
+              format = function(v) return string.format("%.1fs", v / 10) end,
+              get = function() return (addon:GetSetting("displayTime") or 1.5) * 10 end,
+              set = function(v) addon:SetSetting("displayTime", v / 10) end },
+            { type = "slider", key = "fadeTime", label = "Fade Time", section = "Appearance",
+              min = 2, max = 50, step = 1,
+              format = function(v) return string.format("%.1fs", v / 10) end,
+              get = function() return (addon:GetSetting("fadeTime") or 0.6) * 10 end,
+              set = function(v) addon:SetSetting("fadeTime", v / 10) end },
+            { type = "checkbox", key = "enablePop", label = "Pop Animation", section = "Appearance",
+              get = function() return addon:GetSetting("enablePop") ~= false end,
+              set = function(v) addon:SetSetting("enablePop", v) end },
+            { type = "checkbox", key = "playSound", label = "Play Sound", section = "Appearance",
+              get = function() return addon:GetSetting("playSound") ~= false end,
+              set = function(v) addon:SetSetting("playSound", v) end },
+            { type = "nudge", section = "Appearance" },
+
+            { type = "checkbox", key = "anchorToCursor", label = "Anchor to Cursor", section = "Behavior",
+              get = function() return addon:GetSetting("anchorToCursor") or false end,
+              set = function(v) addon:SetSetting("anchorToCursor", v) end },
+            { type = "checkbox", key = "onlyMyLoot", label = "Only My Loot", section = "Behavior",
+              get = function() return addon:GetSetting("onlyMyLoot") ~= false end,
+              set = function(v) addon:SetSetting("onlyMyLoot", v) end },
+            { type = "checkbox", key = "hideDefaultLoot", label = "Hide Blizzard Loot", section = "Behavior",
+              get = function() return addon:GetSetting("hideDefaultLoot") or false end,
+              set = function(v) addon:SetSetting("hideDefaultLoot", v) end },
+
+            { type = "checkbox", key = "showItems", label = "Items", section = "Filters",
+              get = function() return addon:GetSetting("showItems") ~= false end,
+              set = function(v) addon:SetSetting("showItems", v) end },
+            { type = "checkbox", key = "showCurrency", label = "Currency", section = "Filters",
+              get = function() return addon:GetSetting("showCurrency") ~= false end,
+              set = function(v) addon:SetSetting("showCurrency", v) end },
+            { type = "checkbox", key = "showMoney", label = "Money", section = "Filters",
+              get = function() return addon:GetSetting("showMoney") ~= false end,
+              set = function(v) addon:SetSetting("showMoney", v) end },
+            { type = "checkbox", key = "showRep", label = "Reputation", section = "Filters",
+              get = function() return addon:GetSetting("showRep") ~= false end,
+              set = function(v) addon:SetSetting("showRep", v) end },
+            { type = "checkbox", key = "showXP", label = "XP / Honor", section = "Filters",
+              get = function() return addon:GetSetting("showXP") or false end,
+              set = function(v) addon:SetSetting("showXP", v) end },
+            { type = "checkbox", key = "showSkills", label = "Skills", section = "Filters",
+              get = function() return addon:GetSetting("showSkills") or false end,
+              set = function(v) addon:SetSetting("showSkills", v) end },
+            { type = "slider", key = "minQuality", label = "Min Quality", section = "Filters",
+              min = 0, max = 5, step = 1,
+              get = function() return addon:GetSetting("minQuality") or 1 end,
+              set = function(v) addon:SetSetting("minQuality", v) end },
+        },
+
+        actions = {
+            { label = "Reset Position", builtin = "resetPosition" },
+            { label = "Preview Popup", onClick = function() addon:TestPopup() end },
+        },
+    })
+
     return f
 end
 
@@ -178,28 +209,28 @@ end
 
 function addon:ApplyAnchorScale()
     if not self.Anchor then return end
+    local f = self.Anchor
     local scale = math.max(0.5, math.min(2.0, self:GetSetting("scale") or 1.0))
-    self.Anchor:SetScale(scale)
-end
 
-function addon:ApplyLockState()
-    if not self.Anchor then return end
-    local locked = self:GetSetting("locked") ~= false
-    self.Anchor:EnableMouse(not locked)
-    self.Anchor._bg:SetShown(not locked)
-    self.Anchor.Label:SetShown(not locked)
-end
+    local cx, cy = f:GetCenter()
+    local oldScale = f:GetScale()
+    if cx and cy then
+        cx = cx * oldScale
+        cy = cy * oldScale
+    end
 
-function addon:SetLockState(locked)
-    self:SetSetting("locked", locked)
-    self:ApplyLockState()
+    f:SetScale(scale)
+
+    if cx and cy then
+        f:ClearAllPoints()
+        f:SetPoint("CENTER", UIParent, "BOTTOMLEFT", cx / scale, cy / scale)
+    end
 end
 
 function addon:ApplySettings()
     if not self.Anchor then return end
     self:ApplyAnchorPosition()
     self:ApplyAnchorScale()
-    self:ApplyLockState()
 end
 
 function addon:ResetPosition()
@@ -287,14 +318,6 @@ local function GetOptionsTable()
                 order = 10,
                 type = "header",
                 name = "Behavior",
-            },
-            locked = {
-                order = 11,
-                type = "toggle",
-                name = "Lock Frame",
-                desc = "Prevent the anchor from being dragged",
-                get = function() return addon:GetSetting("locked") ~= false end,
-                set = function(_, val) addon:SetLockState(val) end,
             },
             anchorToCursor = {
                 order = 12,
