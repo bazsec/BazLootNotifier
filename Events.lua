@@ -17,6 +17,14 @@ local function ToPattern(str)
     return str
 end
 
+-- Desecretize: string.format("%s", val) strips taint in Midnight
+local function Desecret(val)
+    if val == nil then return nil end
+    local ok, result = pcall(string.format, "%s", val)
+    if ok then return result end
+    return nil
+end
+
 ---------------------------------------------------------------------------
 -- Accumulator: clump rapid-fire events into single popups
 ---------------------------------------------------------------------------
@@ -47,8 +55,8 @@ end
 
 local function OnLoot(msg)
     if not addon:GetSetting("showItems") then return end
+    msg = Desecret(msg)
     if not msg then return end
-    msg = tostring(msg)
 
     -- Self-loot patterns
     local patternSelf = ToPattern(LOOT_ITEM_SELF or "You loot: %s")
@@ -87,8 +95,8 @@ end
 
 local function OnCurrency(msg)
     if not addon:GetSetting("showCurrency") then return end
+    msg = Desecret(msg)
     if not msg then return end
-    msg = tostring(msg)
 
     local currencyLink = msg:match("|Hcurrency:%d+.-|h%[.-%]|h")
     if not currencyLink then return end
@@ -145,8 +153,8 @@ end
 
 local function OnReputation(msg)
     if not addon:GetSetting("showRep") then return end
+    msg = Desecret(msg)
     if not msg then return end
-    msg = tostring(msg)
     local faction, amount = msg:match("Your reputation with (.*) increased by (%d+)")
     if faction and amount then
         AccumulatePopup("rep:" .. faction, "Reputation", faction, 132096, 1, tonumber(amount))
@@ -155,8 +163,8 @@ end
 
 local function OnXP(msg)
     if not addon:GetSetting("showXP") then return end
+    msg = Desecret(msg)
     if not msg then return end
-    msg = tostring(msg)
     local amount = msg:match("gain (%d+) experience")
     if amount then
         AccumulatePopup("xp", "Experience", "XP Gain", 894556, 1, tonumber(amount))
@@ -165,8 +173,8 @@ end
 
 local function OnHonor(msg)
     if not addon:GetSetting("showXP") then return end
+    msg = Desecret(msg)
     if not msg then return end
-    msg = tostring(msg)
     local amount = msg:match("awarded (%d+) honor") or msg:match("gain (%d+) honor")
     if amount then
         AccumulatePopup("honor", "Honor", "Honor Gain", 132486, 1, tonumber(amount))
@@ -175,8 +183,8 @@ end
 
 local function OnSkill(msg)
     if not addon:GetSetting("showSkills") then return end
+    msg = Desecret(msg)
     if not msg then return end
-    msg = tostring(msg)
     local skill, value = msg:match("Your skill in (.*) has increased to (%d+)")
     if skill and value then
         addon:CreateLootPopup("Skill Up", skill, 136243, 1, tonumber(value))
