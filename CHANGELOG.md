@@ -1,5 +1,18 @@
 # BazLootNotifier Changelog
 
+## 010 - Popup Clumping
+- Duplicate popups now merge into one — XP, currency, items, rep, honor accumulate
+- Existing popup updates in-place with repop animation instead of spawning duplicates
+- Kill 4 mobs at once = one XP popup showing the total, not four separate popups
+- Same-item loot stacks into a single popup with combined quantity
+
+## 009 - BazCore SafeString
+- Switched to BazCore:SafeString() for taint handling
+
+## 008 - Secret String Taint Fix
+- Fixed chat message handlers crashing on Midnight secret string values
+- Fixed position not persisting through reloads
+
 ## 007
 - Anchor frame now uses BazCore Edit Mode framework
 - Full Edit Mode integration: cyan/yellow overlays, grid snapping, settings popup

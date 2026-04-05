@@ -18,12 +18,37 @@ local function ToPattern(str)
 end
 
 ---------------------------------------------------------------------------
+-- Accumulator: clump rapid-fire events into single popups
+---------------------------------------------------------------------------
+
+local CLUMP_WINDOW = 0.3 -- seconds to wait before firing
+local accumulators = {} -- [key] = { total, icon, quality, timer, label, desc }
+
+local function AccumulatePopup(key, label, desc, icon, quality, amount)
+    if not accumulators[key] then
+        accumulators[key] = { total = 0, icon = icon, quality = quality, label = label, desc = desc }
+    end
+    local acc = accumulators[key]
+    acc.total = acc.total + amount
+
+    -- Show/update immediately using the popup key system
+    addon:UpdateOrCreatePopup(key, acc.label, acc.desc, acc.icon, acc.quality, acc.total)
+
+    -- Extend the clump window — accumulator stays alive while events keep coming
+    if acc.timer then acc.timer:Cancel() end
+    acc.timer = C_Timer.NewTimer(CLUMP_WINDOW + (addon:GetSetting("displayTime") or 1.5) + (addon:GetSetting("fadeTime") or 0.6), function()
+        accumulators[key] = nil
+    end)
+end
+
+---------------------------------------------------------------------------
 -- Event handlers
 ---------------------------------------------------------------------------
 
 local function OnLoot(msg)
     if not addon:GetSetting("showItems") then return end
-    msg = BazCore:SafeString(msg)
+    if not msg then return end
+    msg = tostring(msg)
 
     -- Self-loot patterns
     local patternSelf = ToPattern(LOOT_ITEM_SELF or "You loot: %s")
@@ -51,18 +76,19 @@ local function OnLoot(msg)
             local _, _, q2, _, _, _, _, _, _, t2 = GetItemInfo(itemLink)
             local minQ = addon:GetSetting("minQuality") or 1
             if q2 and q2 < minQ then return end
-            addon:CreateLootPopup("You receive", itemLink, t2, q2, quantity)
+            AccumulatePopup("item:" .. itemLink, "You receive", itemLink, t2, q2, quantity)
         end)
     else
         local minQ = addon:GetSetting("minQuality") or 1
         if quality and quality < minQ then return end
-        addon:CreateLootPopup("You receive", itemLink, texture, quality, quantity)
+        AccumulatePopup("item:" .. itemLink, "You receive", itemLink, texture, quality, quantity)
     end
 end
 
 local function OnCurrency(msg)
     if not addon:GetSetting("showCurrency") then return end
-    msg = BazCore:SafeString(msg)
+    if not msg then return end
+    msg = tostring(msg)
 
     local currencyLink = msg:match("|Hcurrency:%d+.-|h%[.-%]|h")
     if not currencyLink then return end
@@ -71,12 +97,12 @@ local function OnCurrency(msg)
     local info = C_CurrencyInfo.GetCurrencyInfoFromLink(currencyLink)
 
     if info and info.iconFileID then
-        addon:CreateLootPopup("Currency", currencyLink, info.iconFileID, 1, quantity)
+        AccumulatePopup("currency:" .. currencyLink, "Currency", currencyLink, info.iconFileID, 1, quantity)
     else
         C_Timer.After(0.2, function()
             local retry = C_CurrencyInfo.GetCurrencyInfoFromLink(currencyLink)
             if retry and retry.iconFileID then
-                addon:CreateLootPopup("Currency", currencyLink, retry.iconFileID, 1, quantity)
+                AccumulatePopup("currency:" .. currencyLink, "Currency", currencyLink, retry.iconFileID, 1, quantity)
             end
         end)
     end
@@ -101,43 +127,56 @@ local function OnMoneyChanged()
            (AuctionHouseFrame and AuctionHouseFrame:IsShown()) then
             return
         end
-        local moneyStr = GetMoneyString(diff)
-        if moneyStr and moneyStr ~= "" and moneyStr ~= "0" then
-            addon:CreateLootPopup("You loot", "|cffffff00" .. moneyStr .. "|r", 133784, 1, 1)
+        -- Money uses custom accumulator since we need formatted string
+        if not accumulators["money"] then
+            accumulators["money"] = { total = 0 }
         end
+        accumulators["money"].total = accumulators["money"].total + diff
+        if accumulators["money"].timer then accumulators["money"].timer:Cancel() end
+        accumulators["money"].timer = C_Timer.NewTimer(CLUMP_WINDOW, function()
+            local moneyStr = GetMoneyString(accumulators["money"].total)
+            if moneyStr and moneyStr ~= "" and moneyStr ~= "0" then
+                addon:CreateLootPopup("You loot", "|cffffff00" .. moneyStr .. "|r", 133784, 1, 1)
+            end
+            accumulators["money"] = nil
+        end)
     end
 end
 
 local function OnReputation(msg)
     if not addon:GetSetting("showRep") then return end
-    msg = BazCore:SafeString(msg)
+    if not msg then return end
+    msg = tostring(msg)
     local faction, amount = msg:match("Your reputation with (.*) increased by (%d+)")
     if faction and amount then
-        addon:CreateLootPopup("Reputation", faction, 132096, 1, tonumber(amount))
+        AccumulatePopup("rep:" .. faction, "Reputation", faction, 132096, 1, tonumber(amount))
     end
 end
 
 local function OnXP(msg)
     if not addon:GetSetting("showXP") then return end
-    msg = BazCore:SafeString(msg)
+    if not msg then return end
+    msg = tostring(msg)
     local amount = msg:match("gain (%d+) experience")
     if amount then
-        addon:CreateLootPopup("Experience", "XP Gain", 894556, 1, tonumber(amount))
+        AccumulatePopup("xp", "Experience", "XP Gain", 894556, 1, tonumber(amount))
     end
 end
 
 local function OnHonor(msg)
     if not addon:GetSetting("showXP") then return end
-    msg = BazCore:SafeString(msg)
+    if not msg then return end
+    msg = tostring(msg)
     local amount = msg:match("awarded (%d+) honor") or msg:match("gain (%d+) honor")
     if amount then
-        addon:CreateLootPopup("Honor", "Honor Gain", 132486, 1, tonumber(amount))
+        AccumulatePopup("honor", "Honor", "Honor Gain", 132486, 1, tonumber(amount))
     end
 end
 
 local function OnSkill(msg)
     if not addon:GetSetting("showSkills") then return end
-    msg = BazCore:SafeString(msg)
+    if not msg then return end
+    msg = tostring(msg)
     local skill, value = msg:match("Your skill in (.*) has increased to (%d+)")
     if skill and value then
         addon:CreateLootPopup("Skill Up", skill, 136243, 1, tonumber(value))

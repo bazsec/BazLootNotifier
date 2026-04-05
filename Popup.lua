@@ -11,6 +11,7 @@ local GetItemQualityColor = GetItemQualityColor
 local tremove = tremove
 
 addon._pool = { active = {}, inactive = {} }
+local activePopupsByKey = {}
 
 ---------------------------------------------------------------------------
 -- Popup Frame Pool
@@ -18,7 +19,11 @@ addon._pool = { active = {}, inactive = {} }
 
 local function ResetPopup(frame)
     frame:Hide()
+    if frame.popupKey and activePopupsByKey then
+        activePopupsByKey[frame.popupKey] = nil
+    end
     frame.ItemLink = nil
+    frame.popupKey = nil
     frame:ClearAllPoints()
     if addon.Anchor then
         frame:SetPoint("BOTTOM", addon.Anchor, "BOTTOM", 0, 0)
@@ -211,10 +216,35 @@ end
 -- Public API
 ---------------------------------------------------------------------------
 
-function addon:CreateLootPopup(title, itemLink, texture, quality, quantity)
+function addon:UpdateOrCreatePopup(key, title, itemLink, texture, quality, quantity)
+    -- If a popup with this key is already visible, update it in place
+    if key and activePopupsByKey[key] then
+        local f = activePopupsByKey[key]
+        if f:IsShown() then
+            SetPopupContent(f, title, itemLink, texture, quality, quantity)
+            -- Restart animation (repop)
+            f.animStartTime = GetTime()
+            if self:GetSetting("playSound") then
+                PlaySound(SOUNDKIT.UI_EPICLOOT_TOAST or 31578)
+            end
+            return
+        else
+            activePopupsByKey[key] = nil
+        end
+    end
+
+    self:CreateLootPopup(title, itemLink, texture, quality, quantity, key)
+end
+
+function addon:CreateLootPopup(title, itemLink, texture, quality, quantity, popupKey)
     if not self.Anchor then self:CreateAnchorFrame() end
     local f = AcquirePopup()
     f.ItemLink = itemLink
+    f.popupKey = popupKey
+
+    if popupKey then
+        activePopupsByKey[popupKey] = f
+    end
 
     if self:GetSetting("playSound") then
         PlaySound(SOUNDKIT.UI_EPICLOOT_TOAST or 31578)
