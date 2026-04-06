@@ -1,5 +1,9 @@
 # BazLootNotifier Changelog
 
+## 011 - Midnight Taint Fix
+- Added Desecret() helper using string.format to strip secret string taint
+- All chat event handlers now desecret values before processing
+
 ## 010 - Popup Clumping
 - Duplicate popups now merge into one — XP, currency, items, rep, honor accumulate
 - Existing popup updates in-place with repop animation instead of spawning duplicates
