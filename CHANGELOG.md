@@ -1,5 +1,9 @@
 # BazLootNotifier Changelog
 
+## 012 - Audit Fixes
+- Removed manual profile proxy (now auto-wired by BazCore)
+- Category changed to "Baz Suite"
+
 ## 011 - Midnight Taint Fix
 - Added Desecret() helper using string.format to strip secret string taint
 - All chat event handlers now desecret values before processing
