@@ -1,5 +1,9 @@
 # BazLootNotifier Changelog
 
+## 014 - Unified Profiles
+- Profiles now managed centrally in BazCore settings
+- Removed per-addon Profiles subcategory
+
 ## 012 - Audit Fixes
 - Removed manual profile proxy (now auto-wired by BazCore)
 - Category changed to "Baz Suite"
