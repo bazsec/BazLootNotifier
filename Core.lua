@@ -46,7 +46,6 @@ addon = BazCore:RegisterAddon(ADDON_NAME, {
 
     minimap = {
         label = "BazLootNotifier",
-        icon = 133784,
     },
 
     onReady = function(self)
@@ -233,10 +232,30 @@ local qualities = {
     [5] = "|cffff8000Legendary|r",
 }
 
-local function GetOptionsTable()
-    return {
-        name = "BazLootNotifier",
+local function GetLandingPage()
+    return BazCore:CreateLandingPage("BazLootNotifier", {
         subtitle = "Animated loot popups",
+        description = "Animated loot popup notifications with rarity colors, scaling, and fade timing. " ..
+            "Shows items, currency, gold, reputation, XP, and skill gains as sleek popup cards.",
+        features = "Popups clump duplicate items and stack values. " ..
+            "Rarity-colored borders match WoW item quality. " ..
+            "Drag to reposition via Edit Mode. " ..
+            "Filter by loot type (items, currency, gold, rep, XP, skills).",
+        guide = {
+            { "Positioning", "Enter Edit Mode to drag the popup anchor" },
+            { "Filtering", "Open Settings to choose which loot types to show" },
+            { "Preview", "Use |cff00ff00/bln test|r to see a sample popup" },
+        },
+        commands = {
+            { "/bln", "Open settings" },
+            { "/bln test", "Show a test popup" },
+        },
+    })
+end
+
+local function GetSettingsPage()
+    return {
+        name = "Settings",
         type = "group",
         args = {
             -- Appearance
@@ -401,8 +420,13 @@ end
 
 -- Register options after BazCore is ready
 addon.config.onLoad = function(self)
-    BazCore:RegisterOptionsTable(ADDON_NAME, GetOptionsTable)
+    -- Landing page (main)
+    BazCore:RegisterOptionsTable(ADDON_NAME, GetLandingPage)
     BazCore:AddToSettings(ADDON_NAME, "BazLootNotifier")
+
+    -- Settings subcategory
+    BazCore:RegisterOptionsTable(ADDON_NAME .. "-Settings", GetSettingsPage)
+    BazCore:AddToSettings(ADDON_NAME .. "-Settings", "Settings", ADDON_NAME)
 
     -- Profiles
     BazCore:RegisterOptionsTable(ADDON_NAME .. "-Profiles", function()
