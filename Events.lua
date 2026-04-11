@@ -8,6 +8,19 @@ local C_CurrencyInfo = C_CurrencyInfo
 local tonumber = tonumber
 
 ---------------------------------------------------------------------------
+-- BazNotificationCenter defer
+-- If BNC is installed with the matching module enabled, BLN defers to it
+-- per-category so there are no duplicate notifications. To prefer BLN for
+-- a category, disable that module in BNC's settings.
+---------------------------------------------------------------------------
+
+local function DeferTo(moduleId)
+    if not BazNotificationCenter then return false end
+    if not BNC or not BNC.IsModuleEnabled then return false end
+    return BNC:IsModuleEnabled(moduleId)
+end
+
+---------------------------------------------------------------------------
 -- Pattern builder for localized strings
 ---------------------------------------------------------------------------
 
@@ -203,14 +216,14 @@ end
 -- Register events via BazCore
 ---------------------------------------------------------------------------
 
-addon:On("CHAT_MSG_LOOT", function(_, msg) OnLoot(msg) end)
-addon:On("CHAT_MSG_CURRENCY", function(_, msg) OnCurrency(msg) end)
-addon:On("PLAYER_MONEY", function() OnMoneyChanged() end)
-addon:On("CHAT_MSG_COMBAT_FACTION_CHANGE", function(_, msg) OnReputation(msg) end)
-addon:On("CHAT_MSG_COMBAT_XP_GAIN", function(_, msg) OnXP(msg) end)
-addon:On("CHAT_MSG_COMBAT_HONOR_GAIN", function(_, msg) OnHonor(msg) end)
-addon:On("CHAT_MSG_SKILL", function(_, msg) OnSkill(msg) end)
-addon:On("LOOT_OPENED", function() OnLootOpened() end)
+addon:On("CHAT_MSG_LOOT",                  function(_, msg) if not DeferTo("loot")        then OnLoot(msg)       end end)
+addon:On("CHAT_MSG_CURRENCY",              function(_, msg) if not DeferTo("loot")        then OnCurrency(msg)   end end)
+addon:On("PLAYER_MONEY",                   function()       if not DeferTo("loot")        then OnMoneyChanged()  end end)
+addon:On("CHAT_MSG_COMBAT_FACTION_CHANGE", function(_, msg) if not DeferTo("reputation")  then OnReputation(msg) end end)
+addon:On("CHAT_MSG_COMBAT_XP_GAIN",        function(_, msg) if not DeferTo("xp")          then OnXP(msg)         end end)
+addon:On("CHAT_MSG_COMBAT_HONOR_GAIN",     function(_, msg) if not DeferTo("xp")          then OnHonor(msg)      end end)
+addon:On("CHAT_MSG_SKILL",                 function(_, msg) if not DeferTo("professions") then OnSkill(msg)      end end)
+addon:On("LOOT_OPENED",                    function()       if not DeferTo("loot")        then OnLootOpened()    end end)
 
 -- Init money tracker on login
 addon:On("PLAYER_LOGIN", function()
