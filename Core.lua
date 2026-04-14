@@ -258,6 +258,17 @@ local function GetSettingsPage()
         name = "Settings",
         type = "group",
         args = {
+            intro = {
+                order = 0.1,
+                type = "lead",
+                text = "How loot, XP, rep, and currency popups look on screen. Per-category on/off lives further down.",
+            },
+            bncHandoffNote = {
+                order = 0.2,
+                type = "note",
+                style = "info",
+                text = "When BazNotificationCenter is installed, BLN automatically defers matching categories to BNC. You won't see duplicate popups.",
+            },
             -- Appearance
             appearanceHeader = {
                 order = 1,
