@@ -437,5 +437,5 @@ addon.config.onLoad = function(self)
 
     -- Settings subcategory
     BazCore:RegisterOptionsTable(ADDON_NAME .. "-Settings", GetSettingsPage)
-    BazCore:AddToSettings(ADDON_NAME .. "-Settings", "Settings", ADDON_NAME)
+    BazCore:AddToSettings(ADDON_NAME .. "-Settings", "General Settings", ADDON_NAME)
 end
