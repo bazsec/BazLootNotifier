@@ -2,7 +2,9 @@
 
 # BazLootNotifier
 
-![WoW](https://img.shields.io/badge/WoW-12.0_Midnight-blue) ![License](https://img.shields.io/badge/License-GPL_v2-green) ![Version](https://img.shields.io/github/v/tag/bazsec/BazLootNotifier?label=Version&color=orange)
+![WoW](https://img.shields.io/badge/WoW-12.0_Midnight-blue) ![License](https://img.shields.io/badge/License-GPL_v2-green) ![Version](https://img.shields.io/github/v/tag/bazsec/BazLootNotifier?label=Version&color=orange) ![Status](https://img.shields.io/badge/Status-Maintenance-yellow)
+
+> **Maintenance mode.** BazLootNotifier is no longer receiving new features. Its event coverage has been superseded by **[BazNotificationCenter](https://www.curseforge.com/wow/addons/baznotificationcenter)** (BNC), which provides a more comprehensive toast + history system covering loot, XP, reputation, currency, honor, achievements, rare spawns, professions, and more. **New installs are encouraged to use BNC.** BLN remains supported for existing users; install BNC alongside BLN and the built-in smart handoff routes each event category to the right addon so you never see duplicate popups. BLN will continue receiving compatibility fixes for new WoW patches.
 
 Animated loot popups with rarity colors, scaling, and fade timing.
 

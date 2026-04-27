@@ -6,11 +6,12 @@ if not BazCore or not BazCore.RegisterUserGuide then return end
 
 BazCore:RegisterUserGuide("BazLootNotifier", {
     title = "BazLootNotifier",
-    intro = "Animated loot popups with rarity colors, smart clumping, and configurable scaling.",
+    intro = "Animated loot popups with rarity colors, smart clumping, and configurable scaling. Now in maintenance mode — see the Welcome page for migration notes.",
     pages = {
         {
             title = "Welcome",
             blocks = {
+                { type = "note", style = "warning", text = "|cffffd700Maintenance mode.|r BazLootNotifier is no longer receiving new features. Its event coverage has been superseded by |cffffd700BazNotificationCenter|r (BNC), which provides a more comprehensive toast + history system covering loot, XP, reputation, currency, honor, achievements, rare spawns, professions, and more. New installs are encouraged to use BNC instead. BLN remains supported for existing users — install BNC alongside BLN and the built-in smart handoff routes each event category to the right addon so you never see duplicate popups. BLN will continue receiving compatibility fixes for new WoW patches." },
                 { type = "lead", text = "BazLootNotifier (BLN) shows a stylish popup whenever you loot items, gain XP, earn reputation, receive currency, or craft profession items. Each popup is color-coded by rarity, smoothly animates in and out, and stacks duplicate events into a single combined popup." },
                 { type = "note", style = "tip", text = "Kill 4 mobs in a row? You get one XP popup with the total — not four separate popups stacking up." },
             },
