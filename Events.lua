@@ -55,7 +55,7 @@ local function AccumulatePopup(key, label, desc, icon, quality, amount)
     -- Show/update immediately using the popup key system
     addon:UpdateOrCreatePopup(key, acc.label, acc.desc, acc.icon, acc.quality, acc.total)
 
-    -- Extend the clump window — accumulator stays alive while events keep coming
+    -- Extend the clump window - accumulator stays alive while events keep coming
     if acc.timer then acc.timer:Cancel() end
     acc.timer = C_Timer.NewTimer(CLUMP_WINDOW + (addon:GetSetting("displayTime") or 1.5) + (addon:GetSetting("fadeTime") or 0.6), function()
         accumulators[key] = nil
