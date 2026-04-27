@@ -2,7 +2,7 @@
 ## Title: BazLootNotifier
 ## Notes: Animated loot popups with rarity colors, scaling, and fade timing
 ## Author: Baz4k
-## Version: 021
+## Version: 022
 ## X-License: GPL v2
 ## X-Curse-Project-ID: 1076876
 ## Dependencies: BazCore

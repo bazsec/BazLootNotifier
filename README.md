@@ -19,7 +19,7 @@ BazLootNotifier shows a stylish popup notification whenever you loot items, gain
 *   **Popup clumping** - duplicate events merge into one combined popup (kill 4 mobs = one XP total, not four separate popups)
 *   **Configurable scaling** and fade timing
 *   **Smart BNC handoff** - when BazNotificationCenter is installed, BLN silently defers per-category to avoid duplicate notifications
-*   **Midnight taint safe** - uses Desecret helper for secret string handling
+*   **Taint-safe** — handles Midnight's stricter API correctly so popups never break the rest of your UI
 *   **Profile support** via BazCore
 
 ***
@@ -38,7 +38,7 @@ BazLootNotifier shows a stylish popup notification whenever you loot items, gain
 ## Compatibility
 
 *   **WoW Version:** Retail 12.0 (Midnight)
-*   **Midnight API Safe:** Secret string taint handled via desecret helper
+*   **Taint-safe** — handles Midnight's stricter API correctly
 *   **BazNotificationCenter:** Smart per-category handoff when BNC is installed
 
 ***
