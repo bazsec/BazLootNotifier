@@ -72,7 +72,10 @@ BazCore:RegisterUserGuide("BazLootNotifier", {
                 { type = "table",
                   columns = { "Command", "Effect" },
                   rows = {
-                      { "/bln", "Open the BazLootNotifier settings page" },
+                      { "/bln",              "Open the BazLootNotifier settings page" },
+                      { "/bln test",         "Show a test popup so you can preview animation, scale, and fade settings" },
+                      { "/bln reset",        "Reset the popup anchor position to the default" },
+                      { "/bazlootnotifier",  "Alias for /bln — every subcommand works on either form" },
                   },
                 },
             },

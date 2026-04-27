@@ -22,6 +22,17 @@ BazLootNotifier shows a stylish popup notification whenever you loot items, gain
 
 ***
 
+## Slash Commands
+
+| Command | Description |
+| --- | --- |
+| `/bln` | Open settings panel |
+| `/bln test` | Show a test popup to preview animation, scale, and fade settings |
+| `/bln reset` | Reset the popup anchor position |
+| `/bazlootnotifier` | Alias for `/bln` |
+
+***
+
 ## Compatibility
 
 *   **WoW Version:** Retail 12.0 (Midnight)
