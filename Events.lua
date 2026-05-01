@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-2.0-or-later
 -- BazLootNotifier Events
 -- Loot, currency, money, reputation, XP, honor, skill detection
 

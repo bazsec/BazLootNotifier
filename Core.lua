@@ -1,3 +1,4 @@
+-- SPDX-License-Identifier: GPL-2.0-or-later
 -- BazLootNotifier Core
 -- Addon registration via BazCore, settings, anchor frame
 
